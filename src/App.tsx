@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Researchers from "./pages/Researchers";
 import ResearcherProfile from "./pages/ResearcherProfile";
@@ -26,7 +27,11 @@ const App = () => (
             <Route path="/chercheurs" element={<Researchers />} />
             <Route path="/chercheurs/:id" element={<ResearcherProfile />} />
             <Route path="/publications" element={<Publications />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="admin">
+                <Admin />
+              </ProtectedRoute>
+            } />
             <Route path="/auth" element={<Auth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
