@@ -23,6 +23,7 @@ const Header = () => {
     { name: "Accueil", path: "/" },
     { name: "Chercheurs", path: "/chercheurs" },
     { name: "Publications", path: "/publications" },
+    { name: "Actualités", path: "/feed" },
     ...(userRole === 'admin' ? [{ name: "Admin", path: "/admin" }] : []),
   ];
 

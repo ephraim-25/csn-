@@ -1,18 +1,64 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import StatCard from "@/components/StatCard";
-import { Users, BookOpen, Building2, TrendingUp, Activity, Award } from "lucide-react";
+import { Users, BookOpen, Building2, TrendingUp, Activity, Award, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const Admin = () => {
-  const stats = [
-    { title: "Chercheurs actifs", value: "248", icon: Users, trend: "+12%", description: "vs mois dernier" },
-    { title: "Publications totales", value: "1,847", icon: BookOpen, trend: "+8%", description: "cette année" },
-    { title: "Centres de recherche", value: "24", icon: Building2, trend: "+2", description: "nouveaux" },
-    { title: "h-index moyen", value: "38.5", icon: Award, trend: "+3.2", description: "amélioration" },
+  const { toast } = useToast();
+  const [stats, setStats] = useState({
+    chercheurs: 0,
+    publications: 0,
+    centres: 0,
+    projets: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const [chercheursRes, publicationsRes, centresRes, projetsRes] = await Promise.all([
+        supabase.from("chercheurs").select("*", { count: "exact", head: true }).eq("est_actif", true),
+        supabase.from("publications").select("*", { count: "exact", head: true }).eq("est_publie", true),
+        supabase.from("centres_recherche").select("*", { count: "exact", head: true }).eq("est_actif", true),
+        supabase.from("projets_recherche").select("*", { count: "exact", head: true }).eq("statut", "en_cours"),
+      ]);
+
+      setStats({
+        chercheurs: chercheursRes.count || 0,
+        publications: publicationsRes.count || 0,
+        centres: centresRes.count || 0,
+        projets: projetsRes.count || 0,
+      });
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les statistiques",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const statsCards = [
+    { title: "Chercheurs actifs", value: stats.chercheurs.toString(), icon: Users, trend: "+12%", description: "vs mois dernier" },
+    { title: "Publications totales", value: stats.publications.toString(), icon: BookOpen, trend: "+8%", description: "cette année" },
+    { title: "Centres de recherche", value: stats.centres.toString(), icon: Building2, trend: "+2", description: "nouveaux" },
+    { title: "Projets en cours", value: stats.projets.toString(), icon: Activity, trend: "+15%", description: "vs trimestre" },
   ];
 
   const monthlyData = [
@@ -39,7 +85,21 @@ const Admin = () => {
     { action: "Publication modifiée", user: "Prof. David Kalala", time: "Il y a 5h", type: "warning" },
   ];
 
+  if (loading) {
+    return (
+      <ProtectedRoute requiredRole="admin">
+        <div className="min-h-screen">
+          <Header />
+          <div className="container py-24 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   return (
+    <ProtectedRoute requiredRole="admin">
     <div className="min-h-screen">
       <Header />
       
@@ -58,15 +118,23 @@ const Admin = () => {
                 Vue d'ensemble de la plateforme CSN
               </p>
             </div>
-            <Badge variant="secondary" className="text-sm px-4 py-2">
-              <Activity className="mr-2 h-4 w-4" />
-              Système opérationnel
-            </Badge>
+            <div className="flex items-center gap-4">
+              <Link to="/manage-researchers">
+                <Button className="gap-2">
+                  <Settings className="h-4 w-4" />
+                  Gérer les Chercheurs
+                </Button>
+              </Link>
+              <Badge variant="secondary" className="text-sm px-4 py-2">
+                <Activity className="mr-2 h-4 w-4" />
+                Système opérationnel
+              </Badge>
+            </div>
           </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
+            {statsCards.map((stat, index) => (
               <motion.div
                 key={stat.title}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -213,6 +281,7 @@ const Admin = () => {
         </motion.div>
       </main>
     </div>
+    </ProtectedRoute>
   );
 };
 

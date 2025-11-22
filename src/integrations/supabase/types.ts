@@ -455,6 +455,51 @@ export type Database = {
           },
         ]
       }
+      commentaires_publications: {
+        Row: {
+          contenu: string
+          created_at: string | null
+          est_publie: boolean | null
+          id: string
+          publication_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contenu: string
+          created_at?: string | null
+          est_publie?: boolean | null
+          id?: string
+          publication_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contenu?: string
+          created_at?: string | null
+          est_publie?: boolean | null
+          id?: string
+          publication_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commentaires_publications_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "publications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commentaires_publications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departements: {
         Row: {
           budget: number | null

@@ -11,6 +11,8 @@ import ResearcherProfile from "./pages/ResearcherProfile";
 import Publications from "./pages/Publications";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
+import Feed from "./pages/Feed";
+import ManageResearchers from "./pages/ManageResearchers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,9 +29,15 @@ const App = () => (
             <Route path="/chercheurs" element={<Researchers />} />
             <Route path="/chercheurs/:id" element={<ResearcherProfile />} />
             <Route path="/publications" element={<Publications />} />
+            <Route path="/feed" element={<Feed />} />
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="admin">
                 <Admin />
+              </ProtectedRoute>
+            } />
+            <Route path="/manage-researchers" element={
+              <ProtectedRoute requiredRole="admin">
+                <ManageResearchers />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={<Auth />} />
