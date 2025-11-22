@@ -1334,8 +1334,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
       update_chercheur_stats: {
         Args: { chercheur_uuid: string }
         Returns: undefined
