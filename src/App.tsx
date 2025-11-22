@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import Feed from "./pages/Feed";
 import ManageResearchers from "./pages/ManageResearchers";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,11 @@ const App = () => (
             <Route path="/chercheurs/:id" element={<ResearcherProfile />} />
             <Route path="/publications" element={<Publications />} />
             <Route path="/feed" element={<Feed />} />
+            <Route path="/profile" element={
+              <ProtectedRoute requiredRole="chercheur">
+                <Profile />
+              </ProtectedRoute>
+            } />
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="admin">
                 <Admin />

@@ -76,6 +76,12 @@ const Header = () => {
                   <span className="text-xs capitalize">Rôle: {userRole}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
+                {userRole === 'chercheur' && (
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <User className="mr-2 h-4 w-4" />
+                    Mon profil
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Déconnexion
@@ -134,6 +140,19 @@ const Header = () => {
                       <br />
                       <span className="capitalize">Rôle: {userRole}</span>
                     </div>
+                    {userRole === 'chercheur' && (
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          navigate('/profile');
+                          setMobileMenuOpen(false);
+                        }}
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        Mon profil
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       className="w-full justify-start"
