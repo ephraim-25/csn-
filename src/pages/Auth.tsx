@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { GraduationCap, Shield } from 'lucide-react';
+
+const signInSchema = z.object({
+  email: z.string().email('Email invalide').max(255, 'Email trop long'),
+  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères')
+});
+
+const signUpSchema = z.object({
+  email: z.string().email('Email invalide').max(255, 'Email trop long'),
+  fullName: z.string()
+    .min(2, 'Le nom doit contenir au moins 2 caractères')
+    .max(100, 'Le nom est trop long')
+    .regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Le nom contient des caractères invalides'),
+  password: z.string()
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+    .regex(/[A-Z]/, 'Doit contenir au moins une majuscule')
+    .regex(/[a-z]/, 'Doit contenir au moins une minuscule')
+    .regex(/[0-9]/, 'Doit contenir au moins un chiffre')
+    .regex(/[^A-Za-z0-9]/, 'Doit contenir au moins un caractère spécial'),
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'Les mots de passe ne correspondent pas',
+  path: ['confirmPassword']
+});
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,10 +43,24 @@ export default function Auth() {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    
+    const result = signInSchema.safeParse({
+      email: formData.get('email'),
+      password: formData.get('password')
+    });
 
-    const { error } = await signIn(email, password);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      toast({
+        title: "Erreur de validation",
+        description: Object.values(errors).flat().join(', '),
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const { error } = await signIn(result.data.email, result.data.password);
 
     if (error) {
       toast({
@@ -45,22 +83,26 @@ export default function Auth() {
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const fullName = formData.get('fullName') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
+    
+    const result = signUpSchema.safeParse({
+      email: formData.get('email'),
+      password: formData.get('password'),
+      confirmPassword: formData.get('confirmPassword'),
+      fullName: formData.get('fullName')
+    });
 
-    if (password !== confirmPassword) {
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
       toast({
-        title: "Erreur",
-        description: "Les mots de passe ne correspondent pas",
+        title: "Erreur de validation",
+        description: Object.values(errors).flat().join(', '),
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(result.data.email, result.data.password, result.data.fullName);
 
     if (error) {
       toast({
@@ -176,9 +218,9 @@ export default function Auth() {
                       id="signup-password"
                       name="password"
                       type="password"
+                      placeholder="Min. 8 caractères avec maj, min, chiffre et symbole"
                       required
                       disabled={isLoading}
-                      minLength={6}
                     />
                   </div>
                   <div className="space-y-2">
@@ -189,7 +231,6 @@ export default function Auth() {
                       type="password"
                       required
                       disabled={isLoading}
-                      minLength={6}
                     />
                   </div>
                   <Button
