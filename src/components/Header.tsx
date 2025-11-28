@@ -24,6 +24,7 @@ const Header = () => {
     { name: "Chercheurs", path: "/chercheurs" },
     { name: "Publications", path: "/publications" },
     { name: "Actualités", path: "/feed" },
+    ...(userRole === 'chercheur' ? [{ name: "Mon Espace", path: "/dashboard" }] : []),
     ...(userRole === 'admin' ? [{ name: "Admin", path: "/admin" }] : []),
   ];
 
@@ -77,10 +78,16 @@ const Header = () => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {userRole === 'chercheur' && (
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>
-                    <User className="mr-2 h-4 w-4" />
-                    Mon profil
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      <User className="mr-2 h-4 w-4" />
+                      Mon Espace
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <User className="mr-2 h-4 w-4" />
+                      Mon profil
+                    </DropdownMenuItem>
+                  </>
                 )}
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -141,17 +148,30 @@ const Header = () => {
                       <span className="capitalize">Rôle: {userRole}</span>
                     </div>
                     {userRole === 'chercheur' && (
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start"
-                        onClick={() => {
-                          navigate('/profile');
-                          setMobileMenuOpen(false);
-                        }}
-                      >
-                        <User className="mr-2 h-4 w-4" />
-                        Mon profil
-                      </Button>
+                      <>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            navigate('/dashboard');
+                            setMobileMenuOpen(false);
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          Mon Espace
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          onClick={() => {
+                            navigate('/profile');
+                            setMobileMenuOpen(false);
+                          }}
+                        >
+                          <User className="mr-2 h-4 w-4" />
+                          Mon profil
+                        </Button>
+                      </>
                     )}
                     <Button
                       variant="ghost"

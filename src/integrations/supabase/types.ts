@@ -70,6 +70,42 @@ export type Database = {
           },
         ]
       }
+      admin_matricules: {
+        Row: {
+          created_at: string | null
+          date_utilisation: string | null
+          email: string | null
+          est_utilise: boolean | null
+          id: string
+          matricule: string
+          nom_complet: string
+          updated_at: string | null
+          utilise_par: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date_utilisation?: string | null
+          email?: string | null
+          est_utilise?: boolean | null
+          id?: string
+          matricule: string
+          nom_complet: string
+          updated_at?: string | null
+          utilise_par?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date_utilisation?: string | null
+          email?: string | null
+          est_utilise?: boolean | null
+          id?: string
+          matricule?: string
+          nom_complet?: string
+          updated_at?: string | null
+          utilise_par?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: Database["public"]["Enums"]["audit_action"]
@@ -781,6 +817,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          est_lu: boolean | null
+          id: string
+          message: string
+          titre: string
+          type: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          est_lu?: boolean | null
+          id?: string
+          message: string
+          titre: string
+          type: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          est_lu?: boolean | null
+          id?: string
+          message?: string
+          titre?: string
+          type?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       pages_dynamiques: {
         Row: {
