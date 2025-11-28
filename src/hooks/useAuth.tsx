@@ -11,7 +11,7 @@ interface AuthContextType {
   userRole: UserRole | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'chercheur', matricule?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -69,34 +69,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
-    if (!error) {
-      navigate('/profile');
+    if (!error && data.user) {
+      // Fetch user role to redirect accordingly
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .single();
+      
+      if (roleData?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     }
     
     return { error };
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/profile`;
+  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'chercheur', matricule?: string) => {
+    // For admin role, verify matricule first
+    if (role === 'admin') {
+      if (!matricule) {
+        return { error: { message: 'Le matricule est requis pour le rôle administrateur' } };
+      }
+
+      const { data: matriculeData, error: matriculeError } = await supabase
+        .from('admin_matricules')
+        .select('*')
+        .eq('matricule', matricule)
+        .eq('est_utilise', false)
+        .single();
+
+      if (matriculeError || !matriculeData) {
+        return { error: { message: 'Matricule invalide ou déjà utilisé' } };
+      }
+    }
+
+    const redirectUrl = `${window.location.origin}/dashboard`;
     
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
+          role: role,
+          matricule: matricule,
         }
       }
     });
     
-    if (!error) {
-      navigate('/profile');
+    if (!error && data.user) {
+      // If admin with matricule, mark it as used
+      if (role === 'admin' && matricule) {
+        await supabase
+          .from('admin_matricules')
+          .update({ 
+            est_utilise: true, 
+            utilise_par: data.user.id,
+            date_utilisation: new Date().toISOString()
+          })
+          .eq('matricule', matricule);
+      }
+
+      // Redirect based on role
+      if (role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     }
     
     return { error };

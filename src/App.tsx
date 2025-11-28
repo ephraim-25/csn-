@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import Feed from "./pages/Feed";
 import ManageResearchers from "./pages/ManageResearchers";
 import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,11 @@ const App = () => (
             <Route path="/chercheurs/:id" element={<ResearcherProfile />} />
             <Route path="/publications" element={<Publications />} />
             <Route path="/feed" element={<Feed />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute requiredRole="chercheur">
+                <Dashboard />
+              </ProtectedRoute>
+            } />
             <Route path="/profile" element={
               <ProtectedRoute requiredRole="chercheur">
                 <Profile />
