@@ -12,7 +12,7 @@ import { GraduationCap, Shield } from 'lucide-react';
 
 const signInSchema = z.object({
   email: z.string().email('Email invalide').max(255, 'Email trop long'),
-  password: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères')
+  password: z.string().min(8, 'Le mot de passe doit contenir au moins 8 caractères')
 });
 
 const signUpSchema = z.object({
