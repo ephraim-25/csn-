@@ -1441,6 +1441,11 @@ export type Database = {
         Args: { c1_id: string; c2_id: string }
         Returns: undefined
       }
+      get_chercheur_stats: { Args: { chercheur_uuid: string }; Returns: Json }
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1448,13 +1453,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_or_moderator: { Args: { user_uuid: string }; Returns: boolean }
       update_chercheur_stats: {
         Args: { chercheur_uuid: string }
         Returns: undefined
       }
     }
     Enums: {
-      app_role: "admin" | "chercheur"
+      app_role: "admin" | "chercheur" | "moderateur" | "invite"
       audit_action:
         | "CREATE"
         | "UPDATE"
@@ -1622,7 +1628,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "chercheur"],
+      app_role: ["admin", "chercheur", "moderateur", "invite"],
       audit_action: [
         "CREATE",
         "UPDATE",

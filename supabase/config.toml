@@ -1,1 +1,16 @@
 project_id = "jihwsnrzysbqdjldrmau"
+
+[functions.chercheurs-api]
+verify_jwt = true
+
+[functions.publications-api]
+verify_jwt = true
+
+[functions.stats-dashboard]
+verify_jwt = true
+
+[functions.export-data]
+verify_jwt = true
+
+[functions.centres-api]
+verify_jwt = false
