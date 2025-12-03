@@ -118,11 +118,23 @@ const Admin = () => {
                 Vue d'ensemble de la plateforme CSN
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <Link to="/manage-researchers">
-                <Button className="gap-2">
-                  <Settings className="h-4 w-4" />
-                  Gérer les Chercheurs
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link to="/admin/chercheurs">
+                <Button variant="outline" className="gap-2">
+                  <Users className="h-4 w-4" />
+                  Chercheurs
+                </Button>
+              </Link>
+              <Link to="/admin/publications">
+                <Button variant="outline" className="gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Publications
+                </Button>
+              </Link>
+              <Link to="/admin/centres">
+                <Button variant="outline" className="gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Centres
                 </Button>
               </Link>
               <Badge variant="secondary" className="text-sm px-4 py-2">

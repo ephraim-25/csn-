@@ -16,6 +16,9 @@ import ManageResearchers from "./pages/ManageResearchers";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import ChercheursAdmin from "./pages/admin/ChercheursAdmin";
+import PublicationsAdmin from "./pages/admin/PublicationsAdmin";
+import CentresAdmin from "./pages/admin/CentresAdmin";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +53,21 @@ const App = () => (
             <Route path="/manage-researchers" element={
               <ProtectedRoute requiredRole="admin">
                 <ManageResearchers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/chercheurs" element={
+              <ProtectedRoute requiredRole="admin">
+                <ChercheursAdmin />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/publications" element={
+              <ProtectedRoute requiredRole="admin">
+                <PublicationsAdmin />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/centres" element={
+              <ProtectedRoute requiredRole="admin">
+                <CentresAdmin />
               </ProtectedRoute>
             } />
             <Route path="/auth" element={<Auth />} />
