@@ -127,18 +127,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     
     if (!error && data.user) {
-      // If admin with matricule, mark it as used
-      if (role === 'admin' && matricule) {
-        await supabase
-          .from('admin_matricules')
-          .update({ 
-            est_utilise: true, 
-            utilise_par: data.user.id,
-            date_utilisation: new Date().toISOString()
-          })
-          .eq('matricule', matricule);
-      }
-
+      // Note: matricule update is now handled by the database trigger (handle_new_user)
+      // No need to update it here, which would fail due to RLS anyway
+      
       // Redirect based on role
       if (role === 'admin') {
         navigate('/admin');
