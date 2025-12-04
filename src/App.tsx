@@ -19,6 +19,8 @@ import NotFound from "./pages/NotFound";
 import ChercheursAdmin from "./pages/admin/ChercheursAdmin";
 import PublicationsAdmin from "./pages/admin/PublicationsAdmin";
 import CentresAdmin from "./pages/admin/CentresAdmin";
+import ProvincesAdmin from "./pages/admin/ProvincesAdmin";
+import PublicResearchers from "./pages/PublicResearchers";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +72,13 @@ const App = () => (
                 <CentresAdmin />
               </ProtectedRoute>
             } />
+            <Route path="/admin/provinces" element={
+              <ProtectedRoute requiredRole="admin">
+                <ProvincesAdmin />
+              </ProtectedRoute>
+            } />
+            <Route path="/annuaire" element={<PublicResearchers />} />
+            <Route path="/chercheur/:id" element={<ResearcherProfile />} />
             <Route path="/auth" element={<Auth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
