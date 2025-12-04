@@ -14,3 +14,6 @@ verify_jwt = true
 
 [functions.centres-api]
 verify_jwt = false
+
+[functions.provinces-api]
+verify_jwt = false
