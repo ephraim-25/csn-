@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import StatCard from "@/components/StatCard";
-import { Users, BookOpen, Building2, TrendingUp, Activity, Award, MapPin } from "lucide-react";
+import { Users, BookOpen, Building2, TrendingUp, Activity, Award, MapPin, Key } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -141,6 +141,12 @@ const Admin = () => {
                 <Button variant="outline" className="gap-2">
                   <MapPin className="h-4 w-4" />
                   Provinces
+                </Button>
+              </Link>
+              <Link to="/admin/matricules">
+                <Button variant="outline" className="gap-2">
+                  <Key className="h-4 w-4" />
+                  Matricules
                 </Button>
               </Link>
               <Badge variant="secondary" className="text-sm px-4 py-2">

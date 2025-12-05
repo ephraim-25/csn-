@@ -20,6 +20,7 @@ import ChercheursAdmin from "./pages/admin/ChercheursAdmin";
 import PublicationsAdmin from "./pages/admin/PublicationsAdmin";
 import CentresAdmin from "./pages/admin/CentresAdmin";
 import ProvincesAdmin from "./pages/admin/ProvincesAdmin";
+import MatriculesAdmin from "./pages/admin/MatriculesAdmin";
 import PublicResearchers from "./pages/PublicResearchers";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,11 @@ const App = () => (
             <Route path="/admin/provinces" element={
               <ProtectedRoute requiredRole="admin">
                 <ProvincesAdmin />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/matricules" element={
+              <ProtectedRoute requiredRole="admin">
+                <MatriculesAdmin />
               </ProtectedRoute>
             } />
             <Route path="/annuaire" element={<PublicResearchers />} />
