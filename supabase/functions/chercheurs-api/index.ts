@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
         .from('chercheurs')
         .select(`
           *,
-          centre:centres_recherche(id, nom, acronyme),
+          centre:centres_recherche!chercheurs_centre_id_fkey(id, nom, acronyme),
           province:provinces(id, nom),
           publications:auteurs_publications(count)
         `, { count: 'exact' })
@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
         .from('chercheurs')
         .select(`
           *,
-          centre:centres_recherche(*),
+          centre:centres_recherche!chercheurs_centre_id_fkey(*),
           province:provinces(*),
           departement:departements(*),
           publications:auteurs_publications(
