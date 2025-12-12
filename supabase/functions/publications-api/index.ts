@@ -30,12 +30,16 @@ Deno.serve(async (req) => {
 
     // GET: List publications with filters
     if (req.method === 'GET' && action === 'list') {
+      const search = url.searchParams.get('search');
       const annee = url.searchParams.get('annee');
       const type = url.searchParams.get('type');
       const quartile = url.searchParams.get('quartile');
       const chercheur_id = url.searchParams.get('chercheur_id');
-      const limit = parseInt(url.searchParams.get('limit') || '50');
-      const offset = parseInt(url.searchParams.get('offset') || '0');
+      const limit = parseInt(url.searchParams.get('limit') || '25');
+      const page = parseInt(url.searchParams.get('page') || '1');
+      const offset = (page - 1) * limit;
+      const sort_by = url.searchParams.get('sort_by') || 'annee';
+      const sort_order = url.searchParams.get('sort_order') === 'asc';
 
       let query = supabase
         .from('publications')
@@ -46,9 +50,12 @@ Deno.serve(async (req) => {
             est_correspondant,
             chercheur:chercheurs(id, nom, prenom, photo_url)
           )
-        `, { count: 'exact' })
-        .eq('est_publie', true)
-        .order('annee', { ascending: false });
+        `, { count: 'exact' });
+
+      // Apply search filter
+      if (search) {
+        query = query.or(`titre.ilike.%${search}%,journal.ilike.%${search}%,doi.ilike.%${search}%`);
+      }
 
       if (annee) query = query.eq('annee', annee);
       if (type) query = query.eq('type', type);
@@ -66,17 +73,26 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Apply sorting
+      query = query.order(sort_by, { ascending: sort_order });
       query = query.range(offset, offset + limit - 1);
 
       const { data, error, count } = await query;
       if (error) throw error;
 
+      const totalPages = Math.ceil((count || 0) / limit);
+
+      console.log('[PUBLICATIONS-API] Fetched publications:', { count, page, totalPages });
+
       return new Response(
         JSON.stringify({ 
           data, 
-          count,
-          page: Math.floor(offset / limit) + 1,
-          total_pages: Math.ceil((count || 0) / limit)
+          pagination: {
+            page,
+            limit,
+            total: count || 0,
+            totalPages
+          }
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
