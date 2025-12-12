@@ -1458,6 +1458,10 @@ export type Database = {
         Args: { chercheur_uuid: string }
         Returns: undefined
       }
+      verify_admin_matricule: {
+        Args: { p_matricule: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "chercheur" | "moderateur" | "invite"

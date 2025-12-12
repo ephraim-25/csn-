@@ -41,6 +41,48 @@ Deno.serve(async (req) => {
     const chercheursIndex = pathParts.indexOf('chercheurs-api');
     const action = pathParts[chercheursIndex + 1] || 'list';
 
+    // Define public fields that can be shown to everyone (no PII)
+    const PUBLIC_FIELDS = [
+      'id', 'nom', 'prenom', 'nom_complet', 'grade', 'specialite',
+      'domaines_recherche', 'institution_principale', 'photo_url',
+      'h_index', 'i10_index', 'total_citations', 'nombre_publications',
+      'centre_id', 'province_id', 'biographie', 'orcid', 'google_scholar_id',
+      'researchgate_id', 'est_actif', 'created_at'
+    ];
+    
+    // Sensitive fields that should only be visible to owner or admin
+    const SENSITIVE_FIELDS = [
+      'email', 'telephone', 'adresse', 'ville', 'date_naissance',
+      'lieu_naissance', 'nationalite', 'sexe', 'cv_url', 'linkedin_url',
+      'matricule', 'user_id'
+    ];
+
+    // Helper function to filter sensitive data
+    const filterSensitiveData = (chercheur: any, isOwner: boolean, isAdmin: boolean) => {
+      if (isOwner || isAdmin) {
+        return chercheur; // Return full data
+      }
+      // Filter out sensitive fields for public access
+      const filtered = { ...chercheur };
+      SENSITIVE_FIELDS.forEach(field => {
+        delete filtered[field];
+      });
+      return filtered;
+    };
+
+    // Get current user from token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user } } = await supabase.auth.getUser(token);
+    
+    // Check if user is admin
+    let isAdmin = false;
+    if (user) {
+      const { data: adminCheck } = await supabase.rpc('is_admin_or_moderator', { 
+        user_uuid: user.id 
+      });
+      isAdmin = adminCheck === true;
+    }
+
     // GET: List chercheurs with filters
     if (req.method === 'GET' && action === 'list') {
       const searchParams: SearchParams = {
@@ -91,9 +133,17 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
+      // Filter sensitive data for each chercheur
+      const filteredData = data?.map(chercheur => {
+        const isOwner = user?.id === chercheur.user_id;
+        return filterSensitiveData(chercheur, isOwner, isAdmin);
+      }) || [];
+
+      console.log(`[CHERCHEURS-API] Listed ${filteredData.length} chercheurs (admin: ${isAdmin})`);
+
       return new Response(
         JSON.stringify({ 
-          data, 
+          data: filteredData, 
           count,
           page: Math.floor(searchParams.offset! / searchParams.limit!) + 1,
           total_pages: Math.ceil((count || 0) / searchParams.limit!)
@@ -132,13 +182,19 @@ Deno.serve(async (req) => {
 
       if (error) throw error;
 
+      // Filter sensitive data based on user access
+      const isOwner = user?.id === data.user_id;
+      const filteredData = filterSensitiveData(data, isOwner, isAdmin);
+
       // Get stats
       const { data: stats } = await supabase.rpc('get_chercheur_stats', { 
         chercheur_uuid: chercheurId 
       });
 
+      console.log(`[CHERCHEURS-API] Retrieved chercheur ${chercheurId} (owner: ${isOwner}, admin: ${isAdmin})`);
+
       return new Response(
-        JSON.stringify({ data: { ...data, stats } }),
+        JSON.stringify({ data: { ...filteredData, stats } }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

@@ -93,20 +93,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'chercheur', matricule?: string) => {
-    // For admin role, verify matricule first
+    // For admin role, verify matricule first using secure RPC function
     if (role === 'admin') {
       if (!matricule) {
         return { error: { message: 'Le matricule est requis pour le rôle administrateur' } };
       }
 
-      const { data: matriculeData, error: matriculeError } = await supabase
-        .from('admin_matricules')
-        .select('*')
-        .eq('matricule', matricule)
-        .eq('est_utilise', false)
-        .single();
+      // Use the secure RPC function to verify matricule without exposing admin emails
+      const { data: isValidMatricule, error: matriculeError } = await supabase
+        .rpc('verify_admin_matricule', { p_matricule: matricule });
 
-      if (matriculeError || !matriculeData) {
+      if (matriculeError || !isValidMatricule) {
         return { error: { message: 'Matricule invalide ou déjà utilisé' } };
       }
     }
