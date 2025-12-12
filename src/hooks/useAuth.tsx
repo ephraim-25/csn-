@@ -93,38 +93,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'chercheur', matricule?: string) => {
-    console.log('[signUp] Starting signup process', { email, fullName, role, matricule });
-    
     // For admin role, verify matricule first using secure RPC function
     if (role === 'admin') {
       if (!matricule) {
-        console.log('[signUp] Admin signup failed: no matricule provided');
         return { error: { message: 'Le matricule est requis pour le rôle administrateur' } };
       }
 
-      console.log('[signUp] Verifying matricule:', matricule);
-      
-      // Use the secure RPC function to verify matricule without exposing admin emails
       const { data: isValidMatricule, error: matriculeError } = await supabase
         .rpc('verify_admin_matricule', { p_matricule: matricule });
 
-      console.log('[signUp] Matricule verification result:', { isValidMatricule, matriculeError });
-
       if (matriculeError) {
-        console.error('[signUp] Matricule verification error:', matriculeError);
         return { error: { message: `Erreur de vérification du matricule: ${matriculeError.message}` } };
       }
       
       if (!isValidMatricule) {
-        console.log('[signUp] Matricule invalid or already used');
         return { error: { message: 'Matricule invalide ou déjà utilisé' } };
       }
-      
-      console.log('[signUp] Matricule verified successfully');
     }
 
     const redirectUrl = `${window.location.origin}/dashboard`;
-    console.log('[signUp] Creating auth user with redirect:', redirectUrl);
     
     const { error, data } = await supabase.auth.signUp({
       email,
@@ -139,17 +126,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
     
-    console.log('[signUp] Auth signUp result:', { error, user: data?.user?.id, session: !!data?.session });
-    
     if (error) {
-      console.error('[signUp] Auth error:', error);
       return { error };
     }
     
     if (data.user) {
-      console.log('[signUp] User created successfully, redirecting to:', role === 'admin' ? '/admin' : '/dashboard');
-      
-      // Redirect based on role
       if (role === 'admin') {
         navigate('/admin');
       } else {
